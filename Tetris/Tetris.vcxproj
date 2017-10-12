@@ -70,8 +70,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\juanpabg\Documents\Programming Tests\Tetris\Tetris\Dependencies\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\juanpabg\Documents\Programming Tests\Tetris\Tetris\Dependencies\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Tetris\Dependencies\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Tetris\Dependencies\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
