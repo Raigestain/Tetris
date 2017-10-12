@@ -1,6 +1,6 @@
 #include "Window.h"
 
-GROUND ground = { 40, 10, 450, 750,
+GROUND ground = { 80, SCREEN_HEIGHT - 730, 350, 700,
 	{
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -10,18 +10,18 @@ GROUND ground = { 40, 10, 450, 750,
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }
 	} 
 };
 
@@ -195,21 +195,25 @@ void Window::UpdateGround()
 void Window::RenderGround()
 {
 	SDL_Rect playGround;
+
 	playGround.w = ground.width;
 	playGround.h = ground.height;
 	playGround.x = ground.posX;
 	playGround.y = ground.posY;
 	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 	SDL_RenderFillRect(m_renderer, &playGround);
-
-	/*for (size_t i = 0; i < 20; ++i)
+	
+	
+	int pieceSize = ground.width / 10;
+	for (size_t i = 0; i < 20; ++i)
 	{
 		for (size_t j = 0; j < 10; ++j)
 		{
 			if (ground.active[i][j])
 			{
-				
+				SDL_Rect piece = { ground.posX + (pieceSize * j), ground.posY + (pieceSize * i), pieceSize, pieceSize };
+				SDL_RenderCopy(m_renderer, m_texture, nullptr, &piece);
 			}
 		}
-	}*/
+	}
 }
