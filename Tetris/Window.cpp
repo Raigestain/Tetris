@@ -1,28 +1,28 @@
 #include "Window.h"
 
 GROUND ground = { 80, SCREEN_HEIGHT - 730, 350, 700,
-	{
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }
-	} 
+{
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }
+}
 };
 
 
@@ -57,11 +57,11 @@ bool Window::Init()
 	}
 
 	m_window = SDL_CreateWindow(m_title.c_str(),
-								SDL_WINDOWPOS_CENTERED,
-								SDL_WINDOWPOS_CENTERED, 
-								m_width, 
-								m_height, 
-								SDL_WINDOW_SHOWN);
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		m_width,
+		m_height,
+		SDL_WINDOW_SHOWN);
 
 	if (m_window == nullptr)
 	{
@@ -143,8 +143,6 @@ void Window::PollEvents()
 			break;
 		}
 	}
-
-
 }
 
 void Window::ProcessKeys(const SDL_KeyboardEvent& kbEvent)
@@ -189,7 +187,7 @@ void Window::ProcessKeys(const SDL_KeyboardEvent& kbEvent)
 
 void Window::UpdateGround()
 {
-	
+
 }
 
 void Window::RenderGround()
@@ -202,8 +200,8 @@ void Window::RenderGround()
 	playGround.y = ground.posY;
 	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 	SDL_RenderFillRect(m_renderer, &playGround);
-	
-	
+
+
 	int pieceSize = ground.width / 10;
 	for (size_t i = 0; i < 20; ++i)
 	{
