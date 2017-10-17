@@ -1,33 +1,90 @@
 #include "Window.h"
 
-GROUND ground = { 80, SCREEN_HEIGHT - 730, 350, 700,
+GROUND ground = 
+{ 80, SCREEN_HEIGHT - 730, 350, 700,
+	{
+		{ 0, 0, 1, 0, 0, 0, 0, 1, 1, 0 },
+		{ 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },
+		{ 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
+		{ 0, 0, 1, 0, 1, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
+		{ 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+		{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }
+	}
+};
+
+bool shapeL[4][4] =
 {
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }
-}
+	{ 1, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 1, 1, 0, 0 },
+	{ 0, 0, 0, 0 },
+};
+
+bool shapeJ[4][4] =
+{
+	{ 0, 1, 0, 0 },
+	{ 0, 1, 0, 0 },
+	{ 1, 1, 0, 0 },
+	{ 0, 0, 0, 0 },
+};
+
+bool shapeT[4][4] =
+{
+	{ 1, 1, 1, 0 },
+	{ 0, 1, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+};
+
+bool shapeS[4][4] =
+{
+	{ 0, 1, 1, 0 },
+	{ 1, 1, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+};
+
+bool shapeZ[4][4] =
+{
+	{ 1, 1, 0, 0 },
+	{ 0, 1, 1, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+};
+
+bool shapeO[4][4] =
+{
+	{ 1, 1, 0, 0 },
+	{ 1, 1, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+};
+
+bool shapeI[4][4] =
+{
+	{ 1, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
 };
 
 
 Window::Window(const string& title, unsigned short width, unsigned short height) :
-	m_title(title), m_width(width), m_height(height)
+	m_title(title), m_width(width), m_height(height), m_timer(0)
 {
 	m_window = nullptr;
 	m_renderer = nullptr;
@@ -98,9 +155,9 @@ bool Window::Init()
 	return true;
 }
 
-void Window::Update()
+void Window::Update(float deltaTime)
 {
-	UpdateGround();
+	UpdateGround(deltaTime);
 }
 
 void Window::Render()
@@ -185,9 +242,38 @@ void Window::ProcessKeys(const SDL_KeyboardEvent& kbEvent)
 	}
 }
 
-void Window::UpdateGround()
+void Window::UpdateGround(float deltaTime)
 {
+	m_timer += deltaTime;
 
+	if (m_timer > TIME_SPAN)
+	{
+		m_timer = 0;
+		for (short i = GROUND_HEIGHT-1; i >= 0; --i)
+		{
+			Uint32 counter = 0;
+			for (short j = 0; j < GROUND_WIDTH; ++j)
+			{
+				if (ground.active[i][j])
+				{
+					counter++;
+					if (i != GROUND_HEIGHT - 1 && !ground.active[i + 1][j])
+					{
+						ground.active[i][j] = false;
+						ground.active[i + 1][j] = true;
+					}
+				}
+			}
+
+			if (counter == GROUND_WIDTH)
+			{
+				for (short k = 0; k < GROUND_WIDTH; ++k)
+				{
+					ground.active[i][k] = false;
+				}
+			}
+		}
+	}
 }
 
 void Window::RenderGround()
