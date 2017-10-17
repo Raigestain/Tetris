@@ -8,6 +8,9 @@
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 920;
+const Uint32 GROUND_WIDTH = 10;
+const Uint32 GROUND_HEIGHT = 20;
+const float TIME_SPAN = 750;
 
 using std::cout;
 using std::cerr;
@@ -25,14 +28,14 @@ public:
 	inline bool isClosed() const { return m_isClosed; }
 
 	void PollEvents();
-	void Update();
+	void Update(float deltaTime);
 	void Render();
 
 private:
 	bool Init();
 	void Destroy();
 	void ProcessKeys(const SDL_KeyboardEvent &kbEvent);
-	void UpdateGround();
+	void UpdateGround(float deltaTime);
 	void RenderGround();
 
 private:
@@ -40,6 +43,7 @@ private:
 	unsigned short m_height;
 	unsigned short m_width;
 	bool m_isClosed;
+	float m_timer;
 
 	SDL_Window* m_window;
 	SDL_Renderer* m_renderer;
@@ -52,7 +56,7 @@ struct GROUND
 	int posY;
 	int width;
 	int height;
-	bool active[20][10];
+	bool active[GROUND_HEIGHT][GROUND_WIDTH];
 };
 
 #endif
