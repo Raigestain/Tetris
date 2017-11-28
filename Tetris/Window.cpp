@@ -18,15 +18,15 @@ GROUND ground =
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 	}
 };
 
@@ -478,11 +478,11 @@ char shapeI[SHAPE_STATES][SHAPE_SIZE] =
 */
 
 Window::Window(const string& title, unsigned short width, unsigned short height) :
-	m_title(title), m_width(width), m_height(height), m_timer(0)
+	m_title(title), m_width(width), m_height(height)
 {
-	m_window = nullptr;
-	m_renderer = nullptr;
-	m_texture = nullptr;
+	m_pWindow = nullptr;
+	m_pRenderer = nullptr;
+	m_pTexture = nullptr;
 
 	m_isClosed = !Init();
 }
@@ -506,22 +506,25 @@ bool Window::Init()
 		return false;
 	}
 
-	m_window = SDL_CreateWindow(m_title.c_str(),
+	m_pWindow = SDL_CreateWindow(m_title.c_str(),
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		m_width,
 		m_height,
 		SDL_WINDOW_SHOWN);
 
-	if (m_window == nullptr)
+	if (m_pWindow == nullptr)
 	{
 		cerr << "Window Creation error: " << SDL_GetError() << endl;
 		return false;
 	}
 
-	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	m_pRenderer = SDL_CreateRenderer(m_pWindow,
+                                  -1,
+                                  SDL_RENDERER_ACCELERATED |
+                                  SDL_RENDERER_PRESENTVSYNC);
 
-	if (m_renderer == nullptr)
+	if (m_pRenderer == nullptr)
 	{
 		cerr << "Renderer creation error: " << SDL_GetError() << endl;
 		return false;
@@ -535,15 +538,18 @@ bool Window::Init()
 		return false;
 	}
 
-	m_texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+	m_pTexture = SDL_CreateTextureFromSurface(m_pRenderer, surface);
 
-	if (!m_texture)
+	if (!m_pTexture)
 	{
 		cerr << "Failed to create the texture from surface" << endl;
 		return false;
 	}
 
 	SDL_FreeSurface(surface);
+
+  //Game initialization.
+  GameInit();
 
 	return true;
 }
@@ -555,17 +561,17 @@ void Window::Update(float deltaTime)
 
 void Window::Render()
 {
-	SDL_SetRenderDrawColor(m_renderer, 120, 40, 40, 255);
-	SDL_RenderClear(m_renderer);
+	SDL_SetRenderDrawColor(m_pRenderer, 120, 40, 40, 255);
+	SDL_RenderClear(m_pRenderer);
 
 	RenderGround();
 
-	SDL_RenderPresent(m_renderer);
+	SDL_RenderPresent(m_pRenderer);
 }
 
 void Window::Destroy()
 {
-	Cleanup(m_window, m_renderer, m_texture);
+	Cleanup(m_pWindow, m_pRenderer, m_pTexture);
 	IMG_Quit();
 	SDL_Quit();
 }
@@ -635,22 +641,54 @@ void Window::ProcessKeys(const SDL_KeyboardEvent& kbEvent)
 	}
 }
 
+void Window::GameInit()
+{
+  SpawnPiece();
+  m_timer = 0;
+  m_locked = false;
+  m_actualState = 1;
+}
+
 void Window::UpdateGround(float deltaTime)
 {
-	SpawnPiece();
 
-	m_timer += deltaTime;
+  m_timer += deltaTime;
 
-	if (m_timer > TIME_SPAN)
+  //If the last piece was locked, then spawn a new one.
+  /*if (m_locked)
+  {
+    SpawnPiece();
+    m_locked = false;
+  }*/
+
+  /* TODO:
+   * Add the spawned piece to the ground.
+   * Check if the piece has ground active spots under any of its squares.
+   * Save the previous state of the piece to undo the changes in case of
+     finding active sports under any of the piece's squares.
+   * Lock the piece when one cycle has passed after finding an active spot
+     under the piece.
+   * Check if any row is completed, erase the squares if it does and move all 
+     the active spots ABOVE.
+   * Repeat the previous step until no completed rows appear.
+  */
+
+  //Check if the time span has passed and the move has stopped
+  //to update the ground.
+	if (m_timer > TIME_SPAN && m_locked)
 	{
 		m_timer = 0;
+
+    //Check for each line the active spots.
 		for (short i = GROUND_HEIGHT-1; i >= 0; --i)
-		{
-			Uint32 counter = 0;
+    {
+      Uint32 counter = 0; //counter to know if the line is full.
+      //Check in each column of the line for an active spot.
 			for (short j = 0; j < GROUND_WIDTH; ++j)
 			{
 				if (ground.active[i][j])
 				{
+          //If the spot is active, then increase the counter
 					counter++;
 					if (i != GROUND_HEIGHT - 1 && !ground.active[i + 1][j])
 					{
@@ -679,8 +717,8 @@ void Window::RenderGround()
 	playGround.h = ground.height;
 	playGround.x = ground.posX;
 	playGround.y = ground.posY;
-	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
-	SDL_RenderFillRect(m_renderer, &playGround);
+	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(m_pRenderer, &playGround);
 
 
 	int pieceSize = ground.width / 10;
@@ -691,7 +729,7 @@ void Window::RenderGround()
 			if (ground.active[i][j])
 			{
 				SDL_Rect piece = { ground.posX + (pieceSize * j), ground.posY + (pieceSize * i), pieceSize, pieceSize };
-				SDL_RenderCopy(m_renderer, m_texture, nullptr, &piece);
+				SDL_RenderCopy(m_pRenderer, m_pTexture, nullptr, &piece);
 			}
 		}
 	}
