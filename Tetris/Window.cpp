@@ -26,13 +26,13 @@ GROUND ground =
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+        { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1 }
     }
 };
 
 char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
 {
-  //SHAPE L
+  //SHAPE L (0)
   {
       {
           0, 0, 0, 0, 0,
@@ -63,7 +63,7 @@ char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
           0, 0, 0, 0, 0
       }
   },
-  //SHAPE J
+  //SHAPE J (1)
   {
       {
           0, 0, 0, 0, 0,
@@ -94,7 +94,7 @@ char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
           0, 0, 0, 0, 0
       }
   },
-  //SHAPE T
+  //SHAPE T (2)
   {
       {
           0, 0, 0, 0, 0,
@@ -125,7 +125,7 @@ char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
           0, 0, 0, 0, 0
       }
   },
-  //SHAPE S
+  //SHAPE S (3)
   {
       {
           0, 0, 0, 0, 0,
@@ -156,7 +156,7 @@ char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
           0, 0, 0, 0, 0
       }
   },
-  //SHAPE Z
+  //SHAPE Z (4)
   {
       {
           0, 0, 0, 0, 0,
@@ -187,7 +187,7 @@ char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
           0, 0, 0, 0, 0
       }
   },
-  //SHAPE O
+  //SHAPE O (5)
   {
       {
           0, 0, 0, 0, 0,
@@ -218,7 +218,7 @@ char shapes[SHAPE_NUM][SHAPE_STATES][SHAPE_SIZE] =
           0, 0, 0, 0, 0
       }
   },
-  //SHAPE I
+  //SHAPE I (6)
   {
       {
           0, 0, 0, 0, 0,
@@ -646,22 +646,18 @@ void Window::GameInit()
   m_timer = 0;
   m_locked = false;
   m_actualState = 0;
-  m_piecePos = 0;
+  m_piecePosX = START_X;
+  m_piecePosY = START_Y;
 
-  for (short i = 0; i < SHAPE_STATES; ++i)
-  {
-    for (short j = 0; j < SHAPE_SIZE; ++j)
-    {
-      m_activePiece[i][j] = shapes[0][i][j];
-    }
-  }
+  SpawnPiece();
 
   //This loop assigns the values in the active piece to the play ground.
   for (int i = 0; i < 5; ++i)
   {
     for (int j = 0; j < 5; ++j)
     {
-      ground.active[i + 1][j + 3] = m_activePiece[m_actualState][(i * 5) + j];
+      ground.active[i + START_Y][j + START_X] = 
+        m_activePiece[m_actualState][(i * SHAPE_OFFSET) + j];
     }
   }
 }
@@ -671,15 +667,9 @@ void Window::UpdateGround(float deltaTime)
 
   m_timer += deltaTime;
 
-  //If the last piece was locked, then spawn a new one.
-  /*if (m_locked)
-  {
-    SpawnPiece();
-    m_locked = false;
-  }*/
-
   /* TODO:
    * Add the spawned piece to the ground. (Done)
+   * Move the piece.
    * Check if the piece has ground active spots under any of its squares.
    * Save the previous state of the piece to undo the changes in case of
      finding active sports under any of the piece's squares.
@@ -696,7 +686,8 @@ void Window::UpdateGround(float deltaTime)
   {
     if (!m_locked)
     {
-
+      m_timer = 0;
+      MoveDown();
     }
     else
     {
@@ -713,11 +704,12 @@ void Window::UpdateGround(float deltaTime)
           {
             //If the spot is active, then increase the counter
             counter++;
-            if (i != GROUND_HEIGHT - 1 && !ground.active[i + 1][j])
+
+            /*if (i != GROUND_HEIGHT - 1 && !ground.active[i + 1][j])
             {
               ground.active[i + 1][j] = ground.active[i][j];
               ground.active[i][j] = 0;
-            }
+            }*/
           }
         }
 
@@ -746,9 +738,9 @@ void Window::RenderGround()
 
 
   int pieceSize = ground.width / 10;
-  for (size_t i = 0; i < 20; ++i)
+  for (size_t i = 0; i < GROUND_HEIGHT; ++i)
   {
-    for (size_t j = 0; j < 10; ++j)
+    for (size_t j = 0; j < GROUND_WIDTH; ++j)
     {
       if (ground.active[i][j])
       {
@@ -765,6 +757,10 @@ void Window::SpawnPiece()
   srand(time(NULL));
   piece = rand() % 7;
 
+  /*DELETE THIS!! just for test purposes*/
+  piece = 6;
+  /*************************************/
+
   for (short i = 0; i < SHAPE_STATES; ++i)
   {
     for (short j = 0; j < SHAPE_SIZE; ++j)
@@ -774,6 +770,40 @@ void Window::SpawnPiece()
   }
 
   //__debugbreak();
+}
+
+void Window::MoveDown()
+{
+  /*BUG FOUND: If the active shape finds a single piece in it's way and isn't
+    at the bottom, it will be carried with the shape.
+
+    POSIBLE FIX: make the movement based in the active shape and just 
+    assign the new value to the ground.*/
+  for (int i = (m_piecePosY + SHAPE_OFFSET)-1; i > m_piecePosY; --i)
+  {
+    for (int j = m_piecePosX; j < m_piecePosX + SHAPE_OFFSET; ++j)
+    {
+      if (ground.active[i][j])
+      {
+        if (i < GROUND_HEIGHT-1 && !ground.active[i + 1][j])
+        {
+          ground.active[i + 1][j] = ground.active[i][j];
+          ground.active[i][j] = 0;
+        }
+        else if(ground.active[i + 1][j] && i <= GROUND_HEIGHT - 1)
+        {
+          m_locked = true;
+          m_piecePosY = START_Y;
+          break;
+        }
+      }
+    }
+  }
+  m_piecePosY++;
+
+  /*
+      
+  */
 }
 
 void Window::LockPiece()
