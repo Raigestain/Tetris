@@ -26,7 +26,7 @@ GROUND ground =
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1 }
+        { 1, 1, 1, 0, 0, 0, 0, 1, 1, 1 }
     }
 };
 
@@ -546,6 +546,16 @@ bool Window::Init()
     return false;
   }
 
+  surface = IMG_Load("../Tetris/Images/Background2.jpg");
+
+  m_pBckTexture = SDL_CreateTextureFromSurface(m_pRenderer, surface);
+
+  if (!m_pBckTexture)
+  {
+    cerr << "Failed to create the background texture from surface" << endl;
+    return false;
+  }
+
   SDL_FreeSurface(surface);
 
   //Game initialization.
@@ -571,7 +581,7 @@ void Window::Render()
 
 void Window::Destroy()
 {
-  Cleanup(m_pWindow, m_pRenderer, m_pTexture);
+  Cleanup(m_pWindow, m_pRenderer, m_pTexture, m_pBckTexture);
   IMG_Quit();
   SDL_Quit();
 }
@@ -644,22 +654,13 @@ void Window::ProcessKeys(const SDL_KeyboardEvent& kbEvent)
 void Window::GameInit()
 {
   m_timer = 0;
-  m_locked = false;
+  m_locked = 0;
   m_actualState = 0;
   m_piecePosX = START_X;
   m_piecePosY = START_Y;
+  m_newPiece = false;
 
   SpawnPiece();
-
-  //This loop assigns the values in the active piece to the play ground.
-  for (int i = 0; i < 5; ++i)
-  {
-    for (int j = 0; j < 5; ++j)
-    {
-      ground.active[i + START_Y][j + START_X] = 
-        m_activePiece[m_actualState][(i * SHAPE_OFFSET) + j];
-    }
-  }
 }
 
 void Window::UpdateGround(float deltaTime)
@@ -669,27 +670,27 @@ void Window::UpdateGround(float deltaTime)
 
   /* TODO:
    * Add the spawned piece to the ground. (Done)
-   * Move the piece.
-   * Check if the piece has ground active spots under any of its squares.
+   * Move the piece.(Done)
+   * Check if the piece has ground active spots under any of its squares.(Done)
    * Save the previous state of the piece to undo the changes in case of
-     finding active sports under any of the piece's squares.
+     finding active spots under any of the piece's squares.(Done)
    * Lock the piece when one cycle has passed after finding an active spot
-     under the piece.
-   * Check if any row is completed, erase the squares if it does and move all
-     the active spots ABOVE.
-   * Repeat the previous step until no completed rows appear.
+     under the piece.(Done)
+   * Check if any row is full, erase the squares if it does.(Done)
+   * Move all the active spots ABOVE.
+   * Repeat the previous 2 steps until no full rows appear.
   */
 
   //Check if the time span has passed and the move has stopped
   //to update the ground.
   if (m_timer > TIME_SPAN)
   {
-    if (!m_locked)
+    if (m_locked == 0)
     {
       m_timer = 0;
       MoveDown();
     }
-    else
+    else if(m_locked == 2)
     {
       m_timer = 0;
 
@@ -704,12 +705,6 @@ void Window::UpdateGround(float deltaTime)
           {
             //If the spot is active, then increase the counter
             counter++;
-
-            /*if (i != GROUND_HEIGHT - 1 && !ground.active[i + 1][j])
-            {
-              ground.active[i + 1][j] = ground.active[i][j];
-              ground.active[i][j] = 0;
-            }*/
           }
         }
 
@@ -721,6 +716,11 @@ void Window::UpdateGround(float deltaTime)
           }
         }
       }
+      SpawnPiece();
+    }
+    else
+    {
+      m_locked++;
     }
   }
 }
@@ -744,8 +744,17 @@ void Window::RenderGround()
     {
       if (ground.active[i][j])
       {
-        SDL_Rect piece = { ground.posX + (pieceSize * j), ground.posY + (pieceSize * i), pieceSize, pieceSize };
+        SDL_Rect piece = { ground.posX + (pieceSize * j),
+                           ground.posY + (pieceSize * i),
+                           pieceSize, pieceSize };
         SDL_RenderCopy(m_pRenderer, m_pTexture, nullptr, &piece);
+      }
+      else
+      {
+        SDL_Rect piece = { ground.posX + (pieceSize * j),
+                           ground.posY + (pieceSize * i),
+                           pieceSize, pieceSize };
+        SDL_RenderCopy(m_pRenderer, m_pBckTexture, nullptr, &piece);
       }
     }
   }
@@ -758,7 +767,7 @@ void Window::SpawnPiece()
   piece = rand() % 7;
 
   /*DELETE THIS!! just for test purposes*/
-  piece = 6;
+  //piece = 6;
   /*************************************/
 
   for (short i = 0; i < SHAPE_STATES; ++i)
@@ -769,41 +778,83 @@ void Window::SpawnPiece()
     }
   }
 
+  //This loop assigns the values in the active piece to the play ground.
+  for (int i = 0; i < 5; ++i)
+  {
+    for (int j = 0; j < 5; ++j)
+    {
+      if (ground.active[i + START_Y][j + START_X])
+      {
+        ground.active[i + START_Y-1][j + START_X] =
+          m_activePiece[m_actualState][(i * SHAPE_OFFSET) + j];
+      }
+      ground.active[i + START_Y][j + START_X] =
+        m_activePiece[m_actualState][(i * SHAPE_OFFSET) + j];
+    }
+  }
+
+  m_locked = 0;
+
   //__debugbreak();
 }
 
 void Window::MoveDown()
 {
-  /*BUG FOUND: If the active shape finds a single piece in it's way and isn't
-    at the bottom, it will be carried with the shape.
-
-    POSIBLE FIX: make the movement based in the active shape and just 
-    assign the new value to the ground.*/
-  for (int i = (m_piecePosY + SHAPE_OFFSET)-1; i > m_piecePosY; --i)
+  short rowsMoved = 0;
+  for (int i = SHAPE_OFFSET-1; i >= 0; --i)
   {
-    for (int j = m_piecePosX; j < m_piecePosX + SHAPE_OFFSET; ++j)
+    for (int j = 0; j < SHAPE_OFFSET; ++j)
     {
-      if (ground.active[i][j])
+      if (m_activePiece[m_actualState][i * SHAPE_OFFSET + j])
       {
-        if (i < GROUND_HEIGHT-1 && !ground.active[i + 1][j])
+        short indexI = m_piecePosY + i;
+        short indexJ = m_piecePosX + j;
+        if (ground.active[indexI][indexJ] &&
+            (ground.active[indexI + 1][indexJ] ||
+             indexI >= GROUND_HEIGHT - 1))
         {
-          ground.active[i + 1][j] = ground.active[i][j];
-          ground.active[i][j] = 0;
-        }
-        else if(ground.active[i + 1][j] && i <= GROUND_HEIGHT - 1)
-        {
-          m_locked = true;
+          RollBack(rowsMoved);
+          m_locked = 1;
           m_piecePosY = START_Y;
-          break;
+          return;
         }
       }
     }
+
+    //Move the row.
+    for (int k = 0; k < SHAPE_OFFSET; ++k)
+    {
+      if (m_activePiece[m_actualState][i * SHAPE_OFFSET + k])
+      {
+        short indexI = m_piecePosY + i;
+        short indexK = m_piecePosX + k;
+        ground.active[indexI + 1][indexK] = ground.active[indexI][indexK];
+        ground.active[indexI][indexK] = 0;
+      }
+    }
+    rowsMoved++;
   }
   m_piecePosY++;
+}
 
-  /*
-      
-  */
+void Window::RollBack(short rowsCount)
+{
+  if (rowsCount <= 1)
+    return;
+  for (short i = 0; i < rowsCount; ++i)
+  {
+    for (int j = 0; j < SHAPE_OFFSET; ++j)
+    {
+      short index = ((SHAPE_OFFSET - 1) - i) * SHAPE_OFFSET + j;
+      if (m_activePiece[m_actualState][index])
+      {
+        short indexI = m_piecePosY + (SHAPE_OFFSET) - i;
+        short indexJ = m_piecePosX + j;
+        ground.active[indexI - 1][indexJ] = ground.active[indexI][indexJ];
+        ground.active[indexI][indexJ] = 0;
+      }
+    }
+  }
 }
 
 void Window::LockPiece()
